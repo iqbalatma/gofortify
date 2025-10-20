@@ -1,4 +1,4 @@
-module iqbalatma/gofortify
+module github.com/iqbalatma/gofortify
 
 go 1.25.0
 
