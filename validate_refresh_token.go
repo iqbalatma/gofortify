@@ -2,8 +2,6 @@ package gofortify
 
 import (
 	"time"
-
-	"github.com/iqbalatma/gofortify/blacklist"
 )
 
 func ValidateRefreshToken(jwtToken *string) (*Payload, error) {
@@ -33,7 +31,7 @@ func ValidateRefreshToken(jwtToken *string) (*Payload, error) {
 	}
 
 	//check is on blacklist
-	jti := blacklist.GetBlacklist().Get(payload.JTI)
+	jti := GetBlacklist().Get(payload.JTI)
 
 	//when jti is on blacklist
 	if jti != nil {

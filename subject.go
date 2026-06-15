@@ -1,5 +1,5 @@
 package gofortify
 
-type JWTSubject interface {
+type Subject interface {
 	GetSubjectKey() string
 }

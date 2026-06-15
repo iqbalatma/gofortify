@@ -3,8 +3,6 @@ package gofortify
 import (
 	"time"
 
-	"github.com/iqbalatma/gofortify/config"
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -26,17 +24,20 @@ func getDefaultPayload() *Payload {
 }
 
 func Encode(
-	subject JWTSubject,
+	subject Subject,
 	tokenType TokenType,
 	iuc bool,
 	iss string,
 	iua string,
 ) (string, string, error) {
-	key := []byte(config.Config.JWTSecretKey)
+	key, err := GetSigningKey()
+	if err != nil {
+		return "", "", err
+	}
 
 	payload := getDefaultPayload()
-	incidentTime, err := GetIncidentTime()
-	if err != nil { //it's mean incident time is not set or wrong form, then it will set at this time
+	incidentTime, incidentErr := GetIncidentTime()
+	if incidentErr != nil { //it's mean incident time is not set or wrong form, then it will set at this time
 		payload.EXP = incidentTime
 		payload.NBF = incidentTime
 		payload.IAT = incidentTime
@@ -54,7 +55,7 @@ func Encode(
 
 	addTTL(payload)
 
-	token := jwt.NewWithClaims(config.GetSigningMethod(),
+	token := jwt.NewWithClaims(GetSigningMethod(),
 		payload.ToMapClaims(),
 	)
 
@@ -67,9 +68,9 @@ func Encode(
 
 func addTTL(payload *Payload) {
 	if payload.TYPE == AccessToken {
-		payload.EXP = time.Now().Add(time.Duration(GetAccessTTL()) * time.Minute).Unix()
+		payload.EXP = time.Now().Add(time.Duration(Config.AccessTokenTTL) * time.Minute).Unix()
 	} else {
-		payload.EXP = time.Now().Add(time.Duration(GetRefreshTTL()) * time.Minute).Unix()
+		payload.EXP = time.Now().Add(time.Duration(Config.RefreshTokenTTL) * time.Minute).Unix()
 	}
 }
 

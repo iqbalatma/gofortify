@@ -1,4 +1,4 @@
-package blacklist
+package gofortify
 
 import (
 	"context"
@@ -18,19 +18,17 @@ func (rb *RedisBlacklist) Get(key string) any {
 	if errors.Is(err, redis.Nil) {
 		return nil
 	} else if err != nil {
-		panic(err)
+		return nil
 	}
 	return val
 }
 
 func (rb *RedisBlacklist) Set(key string, value any, expired time.Duration) {
-	err := rb.RedisClient.Set(rb.Context, key, value, expired).Err()
-	if err != nil {
-		panic(err)
-	}
+	rb.RedisClient.Set(rb.Context, key, value, expired)
 }
 
 func (rb *RedisBlacklist) Delete(key string) {
+	rb.RedisClient.Del(rb.Context, key)
 }
 
 func NewRedisBlacklist(RedisClient *redis.Client) *RedisBlacklist {

@@ -3,7 +3,6 @@ package gofortify
 import (
 	"time"
 
-	"github.com/iqbalatma/gofortify/blacklist"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,7 +33,7 @@ func ValidateAccessToken(jwtToken *string, accessTokenVerifier *string) (*Payloa
 	}
 
 	//check is on blacklist
-	jti := blacklist.GetBlacklist().Get(payload.JTI)
+	jti := GetBlacklist().Get(payload.JTI)
 
 	//when jti is on blacklist
 	if jti != nil {
