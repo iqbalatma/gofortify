@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"os"
-	"time"
 
 	gofortify "github.com/iqbalatma/gofortify"
 )
@@ -17,16 +20,29 @@ func (u *User) GetSubjectKey() string {
 	return u.ID
 }
 
-func main() {
-	fmt.Println(time.Now())
+func generateEdDSAKeys() (privatePEM string, publicPEM string) {
+	pubKey, privKey, _ := ed25519.GenerateKey(rand.Reader)
 
-	return
+	privBytes, _ := x509.MarshalPKCS8PrivateKey(privKey)
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
+
+	pubBytes, _ := x509.MarshalPKIXPublicKey(pubKey)
+	pubPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pubBytes})
+
+	return string(privPEM), string(pubPEM)
+}
+
+func main() {
+	// ── generate EdDSA key pair ──────────────────────────────────────────────
+	privPEM, pubPEM := generateEdDSAKeys()
+	fmt.Println("=== Generated EdDSA Keys ===")
+	fmt.Println("Private Key:\n", privPEM)
+	fmt.Println("Public Key:\n", pubPEM)
+
 	// ── config ──────────────────────────────────────────────────────────────
-	os.Setenv("JWT_SIGNING_METHOD", "HS256")
-	// For HMAC: JWT_SECRET_KEY = shared secret, JWT_PUBLIC_KEY = (empty)
-	// For asymmetric (RS*/PS*/ES*/EdDSA): JWT_SECRET_KEY = PEM private key, JWT_PUBLIC_KEY = PEM public key
-	os.Setenv("JWT_SECRET_KEY", "super-secret-key-change-in-production")
-	os.Setenv("JWT_PUBLIC_KEY", "")
+	os.Setenv("JWT_SIGNING_METHOD", "EdDSA")
+	os.Setenv("JWT_SECRET_KEY", privPEM)
+	os.Setenv("JWT_PUBLIC_KEY", pubPEM)
 	os.Setenv("JWT_ACCESS_TOKEN_TTL", "30")
 	os.Setenv("JWT_REFRESH_TOKEN_TTL", "10080")
 	os.Setenv("JWT_REDIS_HOST", "localhost")
@@ -34,12 +50,9 @@ func main() {
 	os.Setenv("JWT_REDIS_PASSWORD", "")
 	os.Setenv("JWT_REDIS_DB", "1")
 	os.Setenv("JWT_BLACKLIST_INCIDENT_TIME_KEY", "gofortify:incident")
+	os.Setenv("JWT_BLACKLIST_DRIVER", "memory")
 
 	gofortify.LoadJWTConfig()
-
-	fmt.Println(gofortify.Config)
-	fmt.Println(gofortify.RDB)
-	return
 	user := &User{ID: "1", Name: "Alice"}
 
 	// ── Encode access token ──────────────────────────────────────────────────
