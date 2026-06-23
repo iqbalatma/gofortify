@@ -19,6 +19,7 @@ type Payload struct {
 	EXP  int64     `json:"exp"`  //expired at: time when this token is expired
 	NBF  int64     `json:"nbf"`  //not valid before: time when this token start to valid
 	JTI  string    `json:"jti"`  //json token identifier: unique identifier to this token
+	PTI  string    `json:"pti"`  //pair token identifier: unique identifier to pair token
 	SUB  string    `json:"sub"`  //subject: user that own this token
 	IUA  string    `json:"iua"`  //issued user agent: user agent that issued this token
 	IUC  bool      `json:"iuc"`  //is using cookie: condition when this token used for mobile
@@ -34,6 +35,7 @@ func (p *Payload) ToMapClaims() jwt.MapClaims {
 		"exp":  p.EXP,
 		"nbf":  p.NBF,
 		"jti":  p.JTI,
+		"pti":  p.PTI,
 		"sub":  p.SUB,
 		"iua":  p.IUA,
 		"iuc":  p.IUC,

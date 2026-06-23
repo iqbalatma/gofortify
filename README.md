@@ -51,6 +51,22 @@ func main() {
 | `JWT_REDIS_DB`                    | Redis database index                                      | —        |
 | `JWT_BLACKLIST_INCIDENT_TIME_KEY` | Key used to store the incident timestamp in blacklist     | —        |
 
+### .env Template
+
+```bash
+JWT_SIGNING_METHOD=HS256
+JWT_SECRET_KEY=your-secret-key
+JWT_PUBLIC_KEY=
+JWT_ACCESS_TOKEN_TTL=30
+JWT_REFRESH_TOKEN_TTL=10080
+JWT_BLACKLIST_DRIVER=redis
+JWT_REDIS_HOST=localhost
+JWT_REDIS_PORT=6379
+JWT_REDIS_PASSWORD=
+JWT_REDIS_DB=0
+JWT_BLACKLIST_INCIDENT_TIME_KEY=jwt_incident_time
+```
+
 ### Blacklist Drivers
 
 gofortify ships two blacklist implementations. Set `JWT_BLACKLIST_DRIVER` to choose one.

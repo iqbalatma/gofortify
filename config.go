@@ -10,6 +10,7 @@ import (
 )
 
 type JWTConfig struct {
+	IssuerServer    string
 	SigningMethod   string
 	JWTSecretKey    string
 	JWTPublicKey    string
@@ -40,8 +41,23 @@ func LoadJWTConfig() {
 			refreshTokenTTL = 10080
 		}
 
+		issuerServer := os.Getenv("JWT_ISSUER_SERVER")
+		if issuerServer == "" {
+			issuerServer = "http://localhost:8080"
+		}
+
+		signingMethod := os.Getenv("JWT_SIGNING_METHOD")
+		if signingMethod == "" {
+			signingMethod = "HS256"
+		}
+
+		incidentKey := os.Getenv("JWT_BLACKLIST_INCIDENT_TIME_KEY")
+		if incidentKey == "" {
+			incidentKey = "jwt_incident"
+		}
 		Config = &JWTConfig{
-			SigningMethod:   os.Getenv("JWT_SIGNING_METHOD"),
+			IssuerServer:    issuerServer,
+			SigningMethod:   signingMethod,
 			JWTSecretKey:    os.Getenv("JWT_SECRET_KEY"),
 			JWTPublicKey:    os.Getenv("JWT_PUBLIC_KEY"),
 			AccessTokenTTL:  accessTokenTTL,

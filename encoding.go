@@ -11,11 +11,12 @@ import (
 func getDefaultPayload() *Payload {
 	return &Payload{
 		ATV:  "",
-		ISS:  "",
+		ISS:  Config.IssuerServer,
 		IAT:  time.Now().Unix(),
 		EXP:  time.Now().Unix(),
 		NBF:  time.Now().Unix(),
-		JTI:  uuid.New().String(),
+		JTI:  "",
+		PTI:  "",
 		SUB:  "",
 		IUA:  "",
 		IUC:  true,
@@ -27,8 +28,9 @@ func Encode(
 	subject Subject,
 	tokenType TokenType,
 	iuc bool,
-	iss string,
 	iua string,
+	jti string,
+	pti string,
 ) (string, string, error) {
 	key, err := GetSigningKey()
 	if err != nil {
@@ -44,9 +46,10 @@ func Encode(
 	}
 	payload.TYPE = tokenType
 	payload.SUB = subject.GetSubjectKey()
-	payload.ISS = iss
 	payload.IUA = iua
 	payload.IUC = iuc
+	payload.JTI = jti
+	payload.PTI = pti
 
 	atv, err := addATV(payload)
 	if err != nil {
