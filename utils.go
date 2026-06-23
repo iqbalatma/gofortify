@@ -19,10 +19,12 @@ func GetIncidentTime() (int64, error) {
 	incidentTime := GetBlacklist().Get(Config.IncidentKey)
 	now := time.Now().Unix()
 
-	if incidentTime == nil { //it's mean incident time is not set
+	//it's mean incident time is not set
+	if incidentTime == nil {
 		GetBlacklist().Set(Config.IncidentKey, now, 0)
 		return now, errors.New("incident time not set")
 	}
+
 	incidentTimeUnix, ok := incidentTime.(int64)
 	if !ok {
 		incidentTimeUnixString, ok := incidentTime.(string)
@@ -43,4 +45,15 @@ func GetIncidentTime() (int64, error) {
 	}
 
 	return incidentTimeUnix, nil
+}
+
+func BlacklistToken(payload *Payload) {
+	ttl := time.Until(time.Unix(payload.EXP, 0))
+	GetBlacklist().Set(payload.JTI, true, ttl)
+}
+
+func BlacklistTokenAndPairToken(payload *Payload) {
+	ttl := time.Until(time.Unix(payload.EXP, 0))
+	GetBlacklist().Set(payload.JTI, true, ttl)
+	GetBlacklist().Set(payload.PTI, true, ttl)
 }
